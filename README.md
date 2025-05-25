@@ -26,22 +26,12 @@ Proyecto base para crear APIs modernas con **FastAPI** siguiendo buenas practica
 │   ├── config.py
 │   ├── main.py
 │   ├── models
-│   │   ├── __pycache__
-│   │   │   └── user.cpython-313.pyc
 │   │   └── user.py
-│   ├── __pycache__
-│   │   └── main.cpython-313.pyc
 │   ├── repositories
-│   │   ├── __pycache__
-│   │   │   └── user_repository.cpython-313.pyc
 │   │   └── user_repository.py
 │   ├── service
-│   │   ├── __pycache__
-│   │   │   └── user_service.cpython-313.pyc
 │   │   └── user_service.py
 │   └── shemas
-│       ├── __pycache__
-│       │   └── user_shema.cpython-313.pyc
 │       └── user_shema.py
 ├── LICENSE
 ├── README.md
