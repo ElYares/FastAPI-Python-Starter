@@ -18,6 +18,7 @@ Proyecto base para crear APIs modernas con **FastAPI** siguiendo buenas practica
 ---
 
 ## Estructura del Proyecto
+<pre>
 ├── app
 │   ├── api
 │   │   └── v1
@@ -45,7 +46,7 @@ Proyecto base para crear APIs modernas con **FastAPI** siguiendo buenas practica
 ├── LICENSE
 ├── README.md
 ├── requirements.txt
-
+</pre>
 ---
 
 ### Requisitos
