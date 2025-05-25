@@ -1,0 +1,43 @@
+# ───────────────────────────────
+# Python
+# ───────────────────────────────
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyo
+
+# Entornos virtuales
+venv/
+.env/
+
+# Logs
+*.log
+
+# Configs temporales
+.DS_Store
+*.swp
+*.bak
+*.tmp
+.idea/
+.vscode/
+*.sublime*
+
+# Archivos de cobertura/test
+htmlcov/
+.coverage
+.cache
+pytest_cache/
+.tox/
+
+# Archivos de entorno y depuración
+.env
+.env.*
+!.env.example
+
+# Docker (si usas en el futuro)
+*.pid
+*.pid.lock
