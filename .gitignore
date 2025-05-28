@@ -41,3 +41,10 @@ pytest_cache/
 # Docker (si usas en el futuro)
 *.pid
 *.pid.lock
+
+# Archivos de cobertura/test
+htmlcov/
+.coverage
+.cache
+pytest_cache/
+.tox/
