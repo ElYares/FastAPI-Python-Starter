@@ -33,7 +33,13 @@ Proyecto base para crear APIs modernas con **FastAPI** siguiendo buenas practica
 │   │   └── user_service.py
 │   └── shemas
 │       └── user_shema.py
+|── tests
+│   └── test_users.py
+|
 ├── LICENSE
+|
+|── pytest.ini
+|
 ├── README.md
 ├── requirements.txt
 </pre>
