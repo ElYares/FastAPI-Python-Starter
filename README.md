@@ -24,6 +24,9 @@ Proyecto base para crear APIs modernas con **FastAPI** siguiendo buenas practica
 │   │   └── v1
 │   │       └── routes.py
 │   ├── config.py
+│   ├── exceptions.py 
+│   ├── logger.py
+│   ├── middleware.py
 │   ├── main.py
 │   ├── models
 │   │   └── user.py
@@ -34,6 +37,7 @@ Proyecto base para crear APIs modernas con **FastAPI** siguiendo buenas practica
 │   └── shemas
 │       └── user_shema.py
 |── tests
+│   ├── test_exceptions.py
 │   └── test_users.py
 |
 ├── LICENSE
