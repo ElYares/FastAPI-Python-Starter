@@ -4,7 +4,7 @@ Manejador de Errores custom para HTTP Errores
 
 from fastapi import HTTPException, status
 
-class NotFoundExeption(HTTPException):
+class NotFoundException(HTTPException):
     """
     Exception for resource not found (HTTP 400)
     """
