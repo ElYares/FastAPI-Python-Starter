@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api.v1.routes import router
+from app.api.v1.health_routes import router as health_router
 
 """
 Punto de entrada de la aplicacion FastAPI
@@ -17,3 +18,4 @@ app = FastAPI(
 # Incluir rutas definidas en los modulos de rutas (v1)
 # Todas las rutas estaran bajo el prefijo /api/v1
 app.include_router(router, prefix="/api/v1")
+app.include_router(health_router, prefix="/api/v1")
