@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from app.service.user_service import UserService
 from app.shemas.user_shema import UserResponse
+#from app.config import settings
 
 # Crear un enrutador para agrupar endpoints relacionados
 router = APIRouter()
