@@ -21,7 +21,7 @@ def setup_logger() -> None:
         handlers=[logging.StreamHandler(sys.stdout)]
     )
 
-    logging.info("✅ Logger inicializado en nivel %s", logging.getLevelName(log_level))
+    logging.info("Logger inicializado en nivel %s", logging.getLevelName(log_level))
 
 
 # Llamada para inicializar el logger global
