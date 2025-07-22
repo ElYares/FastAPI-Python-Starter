@@ -25,6 +25,8 @@ Proyecto base para crear APIs modernas con **FastAPI** siguiendo buenas practica
 │   │       └── routes.py
 │   ├── config.py
 │   ├── main.py
+|   |-- logger.py
+|   |-- middleware.py
 │   ├── models
 │   │   └── user.py
 │   ├── repositories
