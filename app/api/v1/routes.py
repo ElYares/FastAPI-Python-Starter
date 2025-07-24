@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.service.user_service import UserService
 from app.shemas.user_shema import UserResponse
-from app.exceptions import NotFoundException, BadRequestException
+#from app.config import settings
 
 # Crear un enrutador para agrupar endpoints relacionados
 router = APIRouter()
@@ -16,16 +16,4 @@ def get_users():
     La respuesta sera validada y documentada usando el esquema UserResponse
     """
     return user_service.list_users()
-
-@router.get("/not-found")
-async def trigger_not_found():
-    raise NotFoundException("El recurso no existe")
-
-@router.get("/bad-request")
-async def trigger_bad_request():
-    raise BadRequestException("Peticion Incorrecta")
-
-@router.get("/exception")
-async def trigger_exception():
-    raise Exception("Explosión")
 

@@ -1,29 +1,31 @@
 """
-Logger configuration using loguru
+Configuración del sistema de logging para la aplicación.
+Inicializa un logger global con formato estructurado para producción o desarrollo.
 """
 
-from loguru import logger
+import logging
 import sys
-import os
+from app.config import settings
 
-# Remove default handler and add a custom stdout Logger
-logger.remove()
-# Solo loguear si no estamos en entorno de test
-if os.getenv("TESTING") != "1":
-    logger.add(
-        sys.stdout,
-        level="INFO",
-        format="<green>{time}</green> | <level>{level}</level> | <cyan>{message}</cyan>"
+
+def setup_logger() -> None:
+    """
+    Inicializa el logger global con nivel y formato adecuado
+    según el entorno configurado en las variables de entorno.
+    """
+    log_level = logging.DEBUG if settings.DEBUG else logging.INFO
+
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s | %(levelname)s | %(message)s',
+        handlers=[logging.StreamHandler(sys.stdout)]
     )
 
+    logging.info("Logger inicializado en nivel %s", logging.getLevelName(log_level))
 
 
-def get_logger():
-    """
-    Returns the configured logger.
+# Llamada para inicializar el logger global
+setup_logger()
 
-    Returns:
-        loguru.Logger: configured logger instance
-    """
-
-    return logger
+# Instancia del logger para importar en cualquier parte del código
+logger = logging.getLogger(settings.APP_NAME)

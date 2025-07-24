@@ -1,27 +1,34 @@
-from pydantic import BaseSettings
+"""
+Modulo de configuración principal de la aplicación.
+Gestiona las variables de entorno mediante Pydantic Settings y dotenv.
+"""
+from jedi import settings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
 
-"""
-Modulo de configuracion de la aplicacion
-Carga las variables de entorno necesarias desde un archivo '.env'
-y las expone de forma de estructurada para la app
-"""
-
-# Carga automaticamente variables desde un archivo .env
+# Carga automáticamente las variables del archivo .env
 load_dotenv()
+
 
 class Settings(BaseSettings):
     """
-    Clase de configuracion que define todas las variables que pueden
-    ser utilizadas desde cualquier parte de la aplicacion.
+    Clase Settings expone las variables de configuración globales
+    de la aplicación, usando tipado fuerte con Pydantic.
     """
-
     APP_NAME: str = "FastAPI Starter"
     APP_ENV: str = "development"
     DEBUG: bool = True
+    ALLOWED_ORIGINS: str = "http://localhost"
+    LOG_LEVEL: str = "info"
 
-    class Config:
-        env_file = ".env"
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_MINUTES: int = 30
 
-# Instancia global accesible para cualquier Modulo
+    # Configuración de Pydantic Settings
+    model_config = SettingsConfigDict(env_file=".env")
+
+
+# Instancia global para uso desde cualquier módulo
 settings = Settings()
+

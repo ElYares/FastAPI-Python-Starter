@@ -1,38 +1,29 @@
 """
-Custom middleware for structured request logging
+Configuracion de middlewares globales para la aplicacion FastApi
+Incluyendo el soporte para CORS
 """
 
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
-import time
-from .logger import get_logger
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.config import settings
 
-logger = get_logger()
 
-class LoggingMiddleware(BaseHTTPMiddleware):
+def setup_middlewares(app: FastAPI) -> None:
+
     """
-    Middleware that logs each HTTP requests
+    Configura middlewares globales como CORS según el entorno de ejecución.
     """
+    # Definición de orígenes permitidos según entorno
+    origins = ["http://localhost","http://127.0.0.1"]
 
-    async def dispatch(self, request: Request, call_next):
-        """
-        Process and log the HTTP request
+    if settings.APP_ENV=="production":
+        # Puedes definir esto como variable o lista configurable
+        origins = ["https://tudominio.com"]
 
-        Args:
-            request: Incomming Request
-            call_next: Next Handler middleware chain.
-
-        Returns:
-            Response: Outgoing response
-        """
-
-        start_time = time.time()
-        response = await call_next(request)
-        process_time = time.time() - start_time
-        logger.info(
-                f"{request.method} {request.url.path} - {response.status_code} - {process_time:.3f}s"
-        )
-
-        return response
-
+    app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+    )
