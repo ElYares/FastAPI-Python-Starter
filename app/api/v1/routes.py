@@ -17,4 +17,3 @@ def get_users():
     """
     return user_service.list_users()
 
-

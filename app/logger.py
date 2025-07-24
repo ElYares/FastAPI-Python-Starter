@@ -29,4 +29,3 @@ setup_logger()
 
 # Instancia del logger para importar en cualquier parte del código
 logger = logging.getLogger(settings.APP_NAME)
-

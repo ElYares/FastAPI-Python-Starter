@@ -51,7 +51,6 @@ pytest.ini                        # Configuración de pytest para testeo automat
 requirements.txt                 # Lista de dependencias necesarias
 README.md                         # Documentación del proyecto
 LICENSE                           # Licencia del proyecto
-
 </pre>
 ---
 
