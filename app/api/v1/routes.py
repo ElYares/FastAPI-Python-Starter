@@ -1,19 +1,16 @@
 from fastapi import APIRouter
 from app.service.user_service import UserService
 from app.shemas.user_shema import UserResponse
-#from app.config import settings
 
-# Crear un enrutador para agrupar endpoints relacionados
-router = APIRouter()
-
-# Instanciar el servicio de usuruarios
+router = APIRouter(tags=["Users"])
 user_service = UserService()
 
-@router.get("/users", response_model=list[UserResponse])
-def get_users():
-    """
-    Endpoint HTTP GET que retorna una lista de usuarios.
-    La respuesta sera validada y documentada usando el esquema UserResponse
-    """
-    return user_service.list_users()
 
+@router.get(
+    "/users",
+    response_model=list[UserResponse],
+    summary="Listar usuarios",
+    description="Retorna una lista de usuarios desde el repositorio (demo).",
+)
+def get_users() -> list[UserResponse]:
+    return user_service.list_users()
