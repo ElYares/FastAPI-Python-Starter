@@ -1,15 +1,36 @@
-version: '3.9'
-
 services:
   fastapi:
-    build: .
+    build:
+      context: .
     container_name: fastapi-starter
     ports:
       - "8000:8000"
-    volumes:
-      - .:/app
+
+    env_file:
+      - .env
+
     environment:
+      - PYTHONUNBUFFERED=1
       - APP_ENV=development
-      - DEBUG=True
+      - DEBUG=true
+
+    volumes:
+      - .:/app:delegated
+
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health').read()"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+    networks:
+      - fast-starter-api
+
+networks:
+  fast-starter-api:
+    name: fast-starter-api
+    driver: bridge
