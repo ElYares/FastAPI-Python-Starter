@@ -16,11 +16,20 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = "http://localhost"
     LOG_LEVEL: str = "info"
 
+    # DATABASE CONF
+    DATABASE_URL: str = "sqlite:///./app.db"
+    DB_ECHO: bool = False
+
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 30
 
-    model_config = SettingsConfigDict(env_file=".env")
+
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="allow"
+    )
 
 
 settings = Settings()
