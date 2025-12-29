@@ -6,6 +6,9 @@ from app.api.v1.health_routes import router as health_router
 from app.api.v1.auth_routes import router as auth_router
 from app.api.v1.secure_routes import router as secure_router
 from app.exceptions import NotFoundException, BadRequestException
+from app.middleware import setup_middlewares
+
+
 
 
 """
@@ -85,6 +88,10 @@ def _bad_request():
 def _exception():
     raise Exception("boom")
 
+
+
+# Middleware global
+setup_middlewares(app)
 
 # Incluir rutas definidas en los modulos de rutas (v1)
 # Todas las rutas estaran bajo el prefijo /api/v1
