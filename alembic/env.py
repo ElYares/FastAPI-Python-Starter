@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.config import settings
 from app.dependencies.db import Base
+from app.models import db_user
 
 # Alembic Config
 config = context.config
