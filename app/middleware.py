@@ -13,12 +13,14 @@ def setup_middlewares(app: FastAPI) -> None:
     """
     Configura middlewares globales como CORS según el entorno de ejecución.
     """
+    # CSV -> list, ejemplo:
+    # ALLOWED_ORIGINS=http://localhost,http://127.0.0.1,http://localhost:5173
     # Definición de orígenes permitidos según entorno
-    origins = ["http://localhost","http://127.0.0.1"]
+    origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
 
-    if settings.APP_ENV=="production":
-        # Puedes definir esto como variable o lista configurable
-        origins = ["https://tudominio.com"]
+    # Fallback seguro si viene vacio
+    if not origins:
+        origins = ["http://localhost", "http://127.0.0.1"]
 
     app.add_middleware(
             CORSMiddleware,
