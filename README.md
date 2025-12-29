@@ -1,115 +1,208 @@
 # FASTAPI Python Starter
 
-Proyecto base para crear APIs modernas con **FastAPI** siguiendo buenas practicas de arquitectura mediante el patron `Repository + Service`. Ideal para construir microservicios limpios, escalables y faciles de mantener.
-
+Proyecto base para crear APIs modernas con **FastAPI** siguiendo buenas prácticas de arquitectura mediante el patrón **Repository + Service**.  
+Incluye **JWT (Bearer)**, **Swagger listo para probar**, **CORS configurable por `.env`**, **Docker Compose** y **tests**.
 
 ---
 
-## Caracteristicas
+## Características
 
-- Estructura modular con separación por capas  
-- Uso del patrón Repository + Service  
-- Tipado fuerte con Pydantic  
-- Configuración vía `.env`  
-- Dockerfile listo para desarrollo local  
-- Ejemplos de rutas básicas (GET, POST)  
-- Preparado para pruebas unitarias  
+- Estructura modular con separación por capas
+- Patrón **Repository + Service**
+- Tipado fuerte con **Pydantic**
+- Configuración vía `.env` con **pydantic-settings**
+- **JWT Bearer** (login + rutas protegidas)
+- **Swagger (/docs)** con autorización por **Bearer token** (pegar token y listo)
+- **CORS** configurable por variable `ALLOWED_ORIGINS`
+- Logging centralizado
+- Manejo de errores consistente (handlers) + endpoints de prueba para tests
+- Docker Compose con:
+  - `env_file`
+  - `healthcheck`
+  - red dedicada `fast-starter-api`
+- Pruebas automáticas con `pytest`
+
+---
+
+## Documentación (Swagger / OpenAPI)
+
+FastAPI genera la documentación automáticamente al ejecutar la app:
+
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+- OpenAPI JSON: `http://localhost:8000/openapi.json`
+
+### Probar Auth en Swagger
+
+1. Ejecuta `POST /api/v1/login` para obtener el token:
+   ```json
+   {
+     "access_token": "…",
+     "token_type": "bearer"
+   }
+   ```
+2. Click en **Authorize** y pega el `access_token` (solo el token).
+3. Prueba `GET /api/v1/secure`.
 
 ---
 
 ## Estructura del Proyecto
+
+> Nota: el directorio se llama `shemas/` (manteniendo tu estructura actual).
+
 <pre>
-app/
-├── api
-│   └── v1
-│       ├── auth_routes.py        # Rutas para autenticación: /login
-│       ├── health_routes.py      # Ruta de verificación de estado: /health
-│       ├── routes.py             # Rutas generales, en este caso para /users
-│       └── secure_routes.py      # Rutas protegidas por JWT: /secure
-├── config.py                     # Configuración global del proyecto vía .env usando Pydantic
-├── dependencies
-│   └── auth.py                   # Dependencias reutilizables
-├── exceptions.py                 # Manejo de errores personalizados (si no lo tienes, te lo puedo generar)
-├── logger.py                     # Configuración del sistema de logging (nivel, formato, salida)
-├── main.py                       # Punto de entrada de la app FastAPI, incluye rutas y metadatos
-├── middleware.py                 # Middleware para procesamiento de peticiones/respuestas
-├── models
-│   └── user.py                   # Modelo de dominio: User (desacoplado de Pydantic)
-├── repositories
-│   └── user_repository.py        # Lógica de acceso a datos
-├── service
-│   ├── auth_service.py           # Lógica de negocio relacionada con JWT: creación y validación
-│   └── user_service.py           # Lógica de negocio para usuarios, usa UserRepository
-└── shemas
-    └── user_shema.py             # Esquemas Pydantic para entrada/salida de datos HTTP
-
-tests/
-├── test_auth.py                  # Prueba de flujo completo de login y acceso protegido
-└── test_users.py                 # Prueba para listar usuarios
-
-pytest.ini                        # Configuración de pytest para testeo automatizado
-requirements.txt                 # Lista de dependencias necesarias
-README.md                         # Documentación del proyecto
-LICENSE                           # Licencia del proyecto
+elyares-fastapi-python-starter/
+├── README.md
+├── docker-compose.yaml
+├── Dockerfile
+├── LICENSE
+├── pytest.ini
+├── requirements.txt
+├── app/
+│   ├── config.py                    # Settings (.env) con pydantic-settings
+│   ├── exceptions.py                # Excepciones custom (NotFound/BadRequest)
+│   ├── logger.py                    # Logger global
+│   ├── main.py                      # Entry-point: incluye routers, middlewares, handlers
+│   ├── middleware.py                # setup_middlewares(app) + CORS configurable
+│   ├── api/
+│   │   └── v1/
+│   │       ├── auth_routes.py       # POST /login (JWT)
+│   │       ├── health_routes.py     # GET /health
+│   │       ├── routes.py            # GET /users
+│   │       └── secure_routes.py     # GET /secure (protegido)
+│   ├── dependencies/
+│   │   └── auth.py                  # Validación JWT + esquema Bearer para Swagger
+│   ├── models/
+│   │   └── user.py                  # Modelo de dominio (desacoplado)
+│   ├── repositories/
+│   │   └── user_repository.py       # Acceso a datos (mock/in-memory)
+│   ├── service/
+│   │   ├── auth_service.py          # Creación de JWT (exp, sub)
+│   │   └── user_service.py          # Casos de uso de usuarios
+│   └── shemas/
+│       └── user_shema.py            # Schemas Pydantic (UserResponse, TokenResponse, etc.)
+└── tests/
+    ├── test_auth.py                 # Tests de login + /secure (JWT)
+    ├── test_exceptions.py           # Tests de errores (404/400/500)
+    └── test_users.py                # Tests para /users
 </pre>
+
 ---
 
-### Requisitos
+## Requisitos
+
 - Python 3.11+
 - Docker (opcional pero recomendado)
 
-## Flujo de ramas y versiones
-
-
-Este repositorio sigue una convención simple para manejar versiones de desarrollo y producción:
-
-| Rama        | Propósito                                 |
-|-------------|-------------------------------------------|
-| `main`      | Rama estable para producción               |
-| `dev-v1`    | Rama activa de desarrollo para la versión 1 |
-| `feature/*` | Funcionalidades nuevas en progreso         |
-| `hotfix/*`  | Correcciones urgentes directamente en producción |
 
 ---
 
+## Uso con Docker (recomendado)
 
-### Flujo de trabajo
-
-1. Todas las funcionalidades nuevas deben crearse en ramas `feature/*`, por ejemplo:
-   ```bash
-   git checkout -b feature/crear-endpoint-usuarios
-
-
-
-### Uso con Docker
+### Levantar API
 ```bash
-docker-compose up --build -d && docker-compose logs -f && docker-compose down
+docker compose up --build -d
 ```
 
-### Test Con Docker
+### Logs
 ```bash
-docker compose exec fastapi pytest
+docker compose logs -f fastapi
 ```
 
-### Local Sin Docker
+### Bajar
+```bash
+docker compose down
+```
+
+### Red dedicada
+Este starter usa una red bridge llamada:
+- `fast-starter-api`
+
+Puedes verificar:
+```bash
+docker network ls | grep fast-starter-api
+```
+
+---
+
+## Ejecución local (sin Docker)
+
 ```bash
 python -m venv venv
-```
-
-```bash
 source venv/bin/activate
-```
-
-
-```bash
 pip install -r requirements.txt
-```
-
-
-```bash
 uvicorn app.main:app --reload
 ```
 
+---
 
+## Endpoints principales
 
+- `GET  /api/v1/health` → estado del servicio
+- `POST /api/v1/login` → genera `access_token`
+- `GET  /api/v1/users` → lista usuarios (demo)
+- `GET  /api/v1/secure` → protegido por JWT (Bearer)
 
+### Endpoints de soporte para tests de exceptions
+- `GET /api/v1/not-found` → retorna 404 con `{"error": "..."}`
+- `GET /api/v1/bad-request` → retorna 400 con `{"error": "..."}`
+- `GET /api/v1/exception` → retorna 500 con `{"error": "Internal Server Error"}`
+
+> Recomendación: si quieres, estos endpoints se pueden habilitar **solo en development** usando `APP_ENV`.
+
+---
+
+## Probar CORS (Postman / Yak)
+
+### Origin permitido (debe regresar `access-control-allow-origin`)
+- `GET /api/v1/health` con header:
+  - `Origin: http://localhost:5173`
+
+### Origin NO permitido (preflight debe fallar)
+- `OPTIONS /api/v1/secure`
+  - `Origin: http://evil.com`
+  - `Access-Control-Request-Method: GET`
+
+---
+
+## Tests
+
+### Con Docker
+```bash
+docker compose exec fastapi pytest -q
+```
+
+Más verbose:
+```bash
+docker compose exec fastapi pytest -vv
+```
+
+### Por archivo
+```bash
+docker compose exec fastapi pytest -q tests/test_auth.py
+```
+
+---
+
+## Flujo de ramas y versiones (sugerido)
+
+| Rama         | Propósito |
+|--------------|-----------|
+| `main`       | Rama estable / producción |
+| `dev-v1`     | Desarrollo activo |
+| `feature/*`  | Funcionalidades nuevas |
+| `hotfix/*`   | Correcciones urgentes |
+
+Ejemplo:
+```bash
+git checkout -b feature/nueva-funcionalidad
+```
+
+---
+
+## Roadmap (próximas épicas sugeridas)
+
+- **ÉPICA 3 (opcional hardening):** endpoints de exceptions solo en `development`
+- **ÉPICA 5:** Persistencia (DB) + registro/login real (usuarios en DB)
+- **ÉPICA 6:** Observabilidad (request-id, logging JSON, readiness/liveness)
+- **ÉPICA 7:** CI/CD (lint + tests + build)
