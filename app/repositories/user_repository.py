@@ -1,25 +1,70 @@
 """
-Repositorio que simula el acceso a datos persistentes.
-En un entorno real, aqui se conetaria a una base de datos (SQL, NoSQL)
+User repository implementation (persistence layer).
+
+This module encapsulates database access for user entities using SQLAlchemy.
+The repository is responsible only for persistence concerns:
+- querying
+- inserting
+- returning ORM objects
+
+Business rules (e.g., validation, password rules) must remain in the Service layer.
 """
 
-from app.models.user import User
+from __future__ import annotations
 
-# Simulacion de una "Base de datos" en memoria
-_fake_db = [
-    User(1,"Ada Lovelace"),
-    User(2,"Alan Turing"),
-    User(3,"Gauss Jordan"),
-]
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.models.db_user import DBUser
 
 
 class UserRepository:
     """
-    Repositorio que proporciona acceso a datos de usuario
+    Repository for user persistence operations.
+
+    Args:
+        db: SQLAlchemy session used for all repository operations.
+
+    Notes:
+        - The session lifecycle is managed by FastAPI dependency `get_db()`.
+        - This repository returns ORM instances (`DBUser`) and does not perform
+          any serialization. Pydantic schemas handle response serialization.
     """
 
-    def get_all_users(self):
+    def __init__(self, db: Session) -> None:
+        self.db = db
+
+    def list_users(self) -> list[DBUser]:
         """
-        Retorna todos los usuarios simulados de la "base de datos".
+        Fetch all users ordered by ascending ID.
+
+        Returns:
+            list[DBUser]: List of users from the database.
         """
-        return _fake_db
+        stmt = select(DBUser).order_by(DBUser.id.asc())
+        return list(self.db.execute(stmt).scalars().all())
+
+    def get_by_email(self, email: str) -> DBUser | None:
+        """
+        Fetch a user by email.
+
+        Args:
+            email: User email.
+
+        Returns:
+            DBUser | None: User if found; otherwise None.
+        """
+        stmt = select(DBUser).where(DBUser.email == email)
+        return self.db.execute(stmt).scalars().first()
+
+    def get_by_id(self, user_id: int) -> DBUser | None:
+        """
+        Fetch a user by primary key ID.
+
+        Args:
+            user_id: User ID.
+
+        Returns:
+            DBUser | None: User if found; otherwise None.
+        """
+        return self.db.get(DBUser, user_id)

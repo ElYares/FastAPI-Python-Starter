@@ -200,6 +200,24 @@ git checkout -b feature/nueva-funcionalidad
 
 ---
 
+## Migraciones
+
+### Con Docker
+```bash
+docker compose exec fastapi alembic upgrade head
+```
+
+### Por archivo
+```bash
+docker compose exec fastapi alembic upgrade head
+```
+
+### Crear migración (autogenerate)
+```bash
+docker compose exec fastapi alembic revision --autogenerate -m "create users table"
+```
+---
+
 ## Roadmap (próximas épicas sugeridas)
 
 - **ÉPICA 3 (opcional hardening):** endpoints de exceptions solo en `development`
