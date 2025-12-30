@@ -1,34 +1,36 @@
 """
 Users API routes (v1).
 
-This module exposes user-related HTTP endpoints and delegates business logic to
-the Service layer. Responses are validated/documented using Pydantic schemas.
+Defines user-related endpoints and delegates business logic to the Service layer.
+Uses dependency injection to obtain a request-scoped SQLAlchemy session.
 """
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
+from app.dependencies.db import get_db
 from app.service.user_service import UserService
 from app.shemas.user_shema import UserResponse
 
 router = APIRouter(tags=["Users"])
-
-# Service instance for user operations (demo / non-DB version).
-user_service = UserService()
 
 
 @router.get(
     "/users",
     response_model=list[UserResponse],
     summary="Listar usuarios",
-    description="Retorna una lista de usuarios desde el repositorio (demo).",
+    description="Retorna una lista de usuarios desde la base de datos.",
 )
-def get_users() -> list[UserResponse]:
+def get_users(db: Session = Depends(get_db)) -> list[UserResponse]:
     """
-    List users.
+    List users from the database.
+
+    Args:
+        db: Request-scoped SQLAlchemy session.
 
     Returns:
-        list[UserResponse]: List of users returned by the service layer.
+        list[UserResponse]: Users serialized using the response schema.
     """
-    return user_service.list_users()
+    return UserService(db).list_users()
