@@ -1,12 +1,31 @@
+"""
+Database dependency wiring for FastAPI.
+
+This module centralizes SQLAlchemy configuration:
+- Engine creation from settings
+- Session factory (SessionLocal)
+- `get_db()` dependency for request-scoped sessions
+- Declarative Base for ORM models
+
+Design:
+    - `get_db()` yields a session per request and guarantees cleanup.
+    - SQLite requires `check_same_thread=False` for typical FastAPI usage.
+"""
+
+from __future__ import annotations
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
+
 from app.config import settings
 
-# Base para modelos ORM
+#: Declarative base used by all ORM models (e.g., DBUser).
 Base = declarative_base()
 
-# SQLite necesita check_same_thread=False si usas sesiones en FastAPI
-connect_args = {}
+# SQLite thread-safety configuration:
+# FastAPI typically uses concurrency patterns that require disabling SQLite's
+# same-thread restriction for web apps.
+connect_args: dict[str, object] = {}
 if settings.DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
 
@@ -24,11 +43,18 @@ SessionLocal = sessionmaker(
     future=True,
 )
 
+
 def get_db():
     """
-    Dependency de FastApi para obtener una sesion de DB por request
-    """
+    Provide a SQLAlchemy session for a single request.
 
+    Yields:
+        sqlalchemy.orm.Session: An active database session.
+
+    Notes:
+        - The session is always closed after the request completes.
+        - This dependency is meant to be used with `Depends(get_db)`.
+    """
     db = SessionLocal()
     try:
         yield db
