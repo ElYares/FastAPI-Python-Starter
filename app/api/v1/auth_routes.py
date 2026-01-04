@@ -9,9 +9,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
 
+from app.dependencies.db import get_db
 from app.service.auth_service import AuthService
-from app.shemas.user_shema import TokenResponse
+from app.service.user_service import UserService
+from app.shemas.user_shema import TokenResponse, UserCreate, UserResponse
 
 router = APIRouter(tags=["Auth"])
 auth_service = AuthService()
@@ -32,15 +35,33 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()) -> TokenResponse:
     """
     Issue a demo JWT token using the OAuth2 Password flow.
 
-    Args:
-        form_data: OAuth2 form data provided by Swagger UI or clients.
-
-    Returns:
-        TokenResponse: JWT access token and token type.
-
     Warning:
         This endpoint does not validate the user's password (demo-only).
         It should be replaced by a database-backed authentication flow in ÉPICA 5.
     """
     token = auth_service.create_access_token({"sub": form_data.username})
     return TokenResponse(access_token=token, token_type="bearer")
+
+
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    summary="Registrar usuario",
+    description="Crea un usuario en base de datos, hasheando la contraseña con bcrypt.",
+)
+def register(payload: UserCreate, db: Session = Depends(get_db)) -> UserResponse:
+    """
+    Register a new user in the database.
+
+    Args:
+        payload: User registration payload.
+        db: Request-scoped SQLAlchemy session.
+
+    Returns:
+        UserResponse: Created user (public fields only).
+    """
+    return UserService(db).register_user(
+        email=payload.email,
+        password=payload.password,
+        full_name=payload.full_name,
+    )
