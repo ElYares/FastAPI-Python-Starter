@@ -34,6 +34,24 @@ class UserRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
+    def create_user(self, email: str, hashed_password: str, full_name: str | None = None) -> DBUser:
+        """
+        Persist a new user in the database.
+
+        Args:
+            email: Unique email.
+            hashed_password: bcrypt hashed password.
+            full_name: Optional full name.
+
+        Returns:
+            DBUser: Created ORM user.
+        """
+        user = DBUser(email=email, hashed_password=hashed_password, full_name=full_name)
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
     def list_users(self) -> list[DBUser]:
         """
         Fetch all users ordered by ascending ID.
