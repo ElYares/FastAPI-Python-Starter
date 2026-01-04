@@ -35,3 +35,12 @@ class TokenResponse(BaseModel):
 
     access_token: str = Field(..., description="JWT de acceso")
     token_type: str = Field("bearer", description="Tipo de token (Bearer)")
+
+
+class UserCreate(BaseModel):
+    """
+    Schema used to register a new user.
+    """
+    email: EmailStr = Field(..., description="Correo electrónico del usuario")
+    password: str = Field(..., min_length=6, max_length=72, description="Contraseña (máx 72 bytes para bcrypt)")
+    full_name: str | None = Field(default=None, description="Nombre completo del usuario")
