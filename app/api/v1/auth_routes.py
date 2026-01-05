@@ -23,23 +23,29 @@ auth_service = AuthService()
 @router.post(
     "/login",
     response_model=TokenResponse,
-    summary="Iniciar sesión (demo)",
+    summary="Iniciar sesión",
     description=(
-        "Genera un token JWT para pruebas usando el flujo OAuth2 Password. "
-        "Actualmente NO valida credenciales: cualquier usuario/contraseña genera un token. "
-        "El usuario del token se toma del campo `username`."
+        "Valida credenciales contra la base de datos usando bcrypt y retorna un JWT. "
+        "Compatible con Swagger OAuth2 Password flow (Authorize)."
     ),
-    responses={200: {"description": "Token generado correctamente"}},
 )
-def login(form_data: OAuth2PasswordRequestForm = Depends()) -> TokenResponse:
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+) -> TokenResponse:
     """
-    Issue a demo JWT token using the OAuth2 Password flow.
+    Authenticate user credentials and return a JWT token.
 
-    Warning:
-        This endpoint does not validate the user's password (demo-only).
-        It should be replaced by a database-backed authentication flow in ÉPICA 5.
+    Notes:
+        - Swagger UI uses OAuth2 Password flow: sends `username` and `password`.
+        - We interpret `username` as the user's email.
     """
-    token = auth_service.create_access_token({"sub": form_data.username})
+    user = UserService(db).authenticate_user(
+        email=form_data.username,
+        password=form_data.password,
+    )
+
+    token = auth_service.create_access_token({"sub": str(user.id)})
     return TokenResponse(access_token=token, token_type="bearer")
 
 
