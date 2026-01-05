@@ -16,7 +16,7 @@ from app.exceptions import BadRequestException
 from app.logger import logger
 from app.repositories.user_repository import UserRepository
 from app.service.auth_service import AuthService
-
+from app.exceptions import BadRequestException
 
 class UserService:
     """
@@ -73,4 +73,30 @@ class UserService:
         )
 
         logger.info("User registered successfully: user_id=%s email=%s", user.id, user.email)
+        return user
+
+    def authenticate_user(self, email:str, password:str):
+        """
+        Authenticate a user by and password.
+
+        Args:
+            email: User email.
+            password: User password.
+
+        Raises:
+            BadRequestException: If the email is not found or the password is invalid.
+
+        Returns:
+            DBUser | None: Authenticated user if found; otherwise None.
+        """
+
+        user = self.repo.get_by_email(email)
+        if user is None:
+            raise BadRequestException("Credenciales inválidas")
+        
+        if not self.auth.verify_password(password, user.hashed_password):
+            raise BadRequestException("Credenciales inválidas")
+        
+        # Track last login
+        self.repo.update_last_login(user)
         return user
