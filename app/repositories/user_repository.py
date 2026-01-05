@@ -16,6 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.db_user import DBUser
+from datetime import datetime, timezone
 
 
 class UserRepository:
@@ -33,6 +34,23 @@ class UserRepository:
 
     def __init__(self, db: Session) -> None:
         self.db = db
+    
+    def update_last_login(self, user:DBUser) -> DBUser:
+        """
+        Update the user's last_login_at timestamp
+
+        Args:
+            user: ORM user to update.
+
+        Returns:
+            DBUser: Updated ORM user.
+        """
+        user.last_login_at = datetime.now(timezone.utc)
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+    
 
     def create_user(self, email: str, hashed_password: str, full_name: str | None = None) -> DBUser:
         """
