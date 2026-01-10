@@ -3,7 +3,6 @@ services:
     build:
       context: .
     container_name: fastapi-starter
-    user: "${UID}:${GID}"
     ports:
       - "8000:8000"
 

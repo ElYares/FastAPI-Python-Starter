@@ -48,8 +48,3 @@ htmlcov/
 .cache
 pytest_cache/
 .tox/
-
-
-# SQLite
-*.db
-app.db
