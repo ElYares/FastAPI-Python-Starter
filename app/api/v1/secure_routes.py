@@ -1,34 +1,17 @@
-"""
-Protected routes (v1).
-
-Endpoints under this router require a valid JWT token.
-"""
-
-from __future__ import annotations
-
 from fastapi import APIRouter, Depends
-
 from app.dependencies.auth import get_current_user
-from app.models.db_user import DBUser
-from app.shemas.user_shema import UserResponse
 
 router = APIRouter(tags=["Secure"])
 
 
 @router.get(
     "/secure",
-    response_model=UserResponse,
-    summary="Recurso protegido",
-    description="Retorna el usuario autenticado validando el JWT contra la base de datos.",
+    summary="Endpoint protegido (demo)",
+    description="Requiere un JWT válido en el header Authorization: Bearer <token>.",
+    responses={
+        200: {"description": "Acceso permitido"},
+        401: {"description": "Token inválido o ausente"},
+    },
 )
-def protected_route(user: DBUser = Depends(get_current_user)) -> UserResponse:
-    """
-    Return the authenticated user.
-
-    Args:
-        user: Authenticated user loaded from the database.
-
-    Returns:
-        UserResponse: Public user data.
-    """
-    return user
+def protected_route(user: str = Depends(get_current_user)) -> dict:
+    return {"message": f"Bienvenido {user}, loggeado con exito al recurso protegido"}

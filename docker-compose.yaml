@@ -3,15 +3,16 @@ services:
     build:
       context: .
     container_name: fastapi-starter
-    user: "${UID}:${GID}"
     ports:
-      - "${APP_PORT:-8000}:8000"
+      - "8000:8000"
 
     env_file:
       - .env
 
     environment:
       - PYTHONUNBUFFERED=1
+      - APP_ENV=development
+      - DEBUG=true
 
     volumes:
       - .:/app:delegated
