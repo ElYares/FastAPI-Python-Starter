@@ -1,22 +1,23 @@
 """
-Pruebas unitarias para el endpoint /users
+Pruebas para el endpoint /users.
+
+Nota:
+- Usamos el fixture `client` de conftest.py para asegurar DB aislada y overrides.
 """
 
-from fastapi.testclient import TestClient
-from app.main import app
+from __future__ import annotations
 
 
-client = TestClient(app)
-
-def test_get_users_returns_list():
+def test_get_users_returns_list(client):
     """
-    Verfica que el endpoint /users retorne un status 200
-    y que el contenido sea una lista de usuarios con 'id' y 'name'
+    Verifica que el endpoint /users retorne 200 y una lista de usuarios
+    con campos mínimos esperados.
     """
-
-    response =  client.get("/api/v1/users")
-    assert response.status_code == 200
+    response = client.get("/api/v1/users")
+    assert response.status_code == 200, response.text
 
     data = response.json()
     assert isinstance(data, list)
-    assert all("id" in user and "name" in user for user in data)
+
+    # Contrato actual: id + email (y opcionalmente full_name/is_active)
+    assert all("id" in user and "email" in user for user in data)
