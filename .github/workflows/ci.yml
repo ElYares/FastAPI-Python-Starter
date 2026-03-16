@@ -33,3 +33,6 @@ jobs:
 
       - name: Test
         run: make test
+
+      - name: Security Scan
+        run: make security
