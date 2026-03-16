@@ -15,6 +15,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.config import settings
 from app.dependencies.db import Base
+from app.models import DBRefreshToken, DBUser  # noqa: F401
 
 config = context.config
 
