@@ -147,6 +147,7 @@ make run
 
 - `GET  /api/v1/health` → estado del servicio
 - `POST /api/v1/login` → genera `access_token`
+- `POST /api/v1/refresh` → rota `refresh_token` y devuelve nuevo par de tokens
 - `GET  /api/v1/users` → lista usuarios (demo)
 - `GET  /api/v1/secure` → protegido por JWT (Bearer)
 

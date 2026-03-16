@@ -10,9 +10,10 @@ WORKDIR /app
 
 # Copia requirements
 COPY requirements/ requirements/
+COPY requirements.txt .
 
 # Instala dependencias
-RUN pip install --upgrade pip && pip install -r requirements/base.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copia el resto del código fuente
 COPY . .
