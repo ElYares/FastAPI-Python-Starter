@@ -15,12 +15,10 @@ from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from uuid import uuid4
 
+import bcrypt
 from jose import jwt
-from passlib.context import CryptContext
 
 from app.config import settings
-
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class AuthService:
@@ -50,7 +48,9 @@ class AuthService:
         # Reject longer inputs to avoid ambiguity.
         if len(password.encode("utf-8")) > 72:
             raise ValueError("Password is too long")
-        return _pwd_context.hash(password)
+        password_bytes = password.encode("utf-8")
+        hashed_bytes = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+        return hashed_bytes.decode("utf-8")
 
     def verify_password(self, password: str, hashed_password: str) -> bool:
         """
@@ -63,7 +63,12 @@ class AuthService:
         Returns:
             bool: True if password matches the hash; otherwise False.
         """
-        return _pwd_context.verify(password, hashed_password)
+        password_bytes = password.encode("utf-8")
+        hashed_bytes = hashed_password.encode("utf-8")
+        try:
+            return bcrypt.checkpw(password_bytes, hashed_bytes)
+        except ValueError:
+            return False
 
     def create_access_token(self, data: dict) -> str:
         """

@@ -14,6 +14,9 @@ from app.repositories.user_repository import UserRepository
 from app.service.auth_service import AuthService
 from app.shemas.user_shema import TokenResponse
 
+# Bandit false positive: OAuth2 requires the literal token type "bearer".
+BEARER_TOKEN_TYPE = "bearer"  # nosec B105
+
 
 class TokenService:
     """Issue and rotate token pairs backed by refresh-token persistence."""
@@ -45,7 +48,7 @@ class TokenService:
         return TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
-            token_type="bearer",
+            token_type=BEARER_TOKEN_TYPE,
         )
 
     def rotate_refresh_token(self, refresh_token: str) -> TokenResponse:
@@ -108,5 +111,5 @@ class TokenService:
         return TokenResponse(
             access_token=new_access_token,
             refresh_token=new_refresh_token,
-            token_type="bearer",
+            token_type=BEARER_TOKEN_TYPE,
         )
