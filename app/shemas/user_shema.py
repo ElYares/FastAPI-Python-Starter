@@ -7,7 +7,7 @@ los datos expuestos por la API.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserResponse(BaseModel):
@@ -24,8 +24,7 @@ class UserResponse(BaseModel):
     full_name: str | None = Field(default=None, description="Nombre completo del usuario")
     is_active: bool = Field(default=True, description="Indica si el usuario está activo")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TokenResponse(BaseModel):
