@@ -42,7 +42,9 @@ def test_register_login_secure_flow(client):
     r = client.post("/api/v1/login", data=login_form)
     assert r.status_code == 200, r.text
     token = r.json()["access_token"]
+    refresh_token = r.json()["refresh_token"]
     assert token
+    assert refresh_token
 
     # --- Secure endpoint ---
     headers = {"Authorization": f"Bearer {token}"}
@@ -83,4 +85,35 @@ def test_secure_requires_token(client):
     /secure must reject requests without a Bearer token.
     """
     r = client.get("/api/v1/secure")
+    assert r.status_code == 401, r.text
+
+
+def test_refresh_rotates_token_pair(client):
+    """
+    A valid refresh token should issue a new token pair and revoke the previous refresh token.
+    """
+    email = f"refresh-{uuid.uuid4().hex[:8]}@test.com"
+    password = "12345678"
+
+    client.post(
+        "/api/v1/register",
+        json={"email": email, "password": password, "full_name": "Refresh User"},
+    )
+    login = client.post("/api/v1/login", data={"username": email, "password": password})
+    assert login.status_code == 200, login.text
+
+    first_refresh = login.json()["refresh_token"]
+    rotate = client.post("/api/v1/refresh", json={"refresh_token": first_refresh})
+    assert rotate.status_code == 200, rotate.text
+    second_refresh = rotate.json()["refresh_token"]
+    assert second_refresh
+    assert second_refresh != first_refresh
+
+    replay_old = client.post("/api/v1/refresh", json={"refresh_token": first_refresh})
+    assert replay_old.status_code == 401, replay_old.text
+
+
+def test_refresh_rejects_invalid_token(client):
+    """Invalid refresh tokens must be rejected with HTTP 401."""
+    r = client.post("/api/v1/refresh", json={"refresh_token": "not-a-token"})
     assert r.status_code == 401, r.text

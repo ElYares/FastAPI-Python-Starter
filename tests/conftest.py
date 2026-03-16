@@ -31,7 +31,9 @@ def engine():
     StaticPool keeps the same in-memory DB alive across connections.
     """
     # Lazy import here so env vars above are already applied before settings load.
+    import app.models  # noqa: F401,WPS433
     from app.dependencies.db import Base  # noqa: WPS433
+    from app.dependencies.rate_limit import login_rate_limiter  # noqa: WPS433
 
     engine = create_engine(
         "sqlite+pysqlite:///:memory:",
@@ -39,6 +41,7 @@ def engine():
         poolclass=StaticPool,
     )
     Base.metadata.create_all(bind=engine)
+    login_rate_limiter.clear()
     return engine
 
 
@@ -83,3 +86,12 @@ def client(db_session) -> Generator[TestClient, None, None]:
     c.close()
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(autouse=True)
+def reset_login_rate_limiter() -> Generator[None, None, None]:
+    """Reset login limiter state between tests to avoid cross-test interference."""
+    from app.dependencies.rate_limit import login_rate_limiter  # noqa: WPS433
+
+    login_rate_limiter.clear()
+    yield

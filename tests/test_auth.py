@@ -132,3 +132,27 @@ def test_secure_with_expired_token(client):
 
     r = client.get("/api/v1/secure", headers={"Authorization": f"Bearer {token}"})
     assert r.status_code == 401
+
+
+def test_login_rate_limit_blocks_excessive_attempts(client):
+    """
+    Too many failed login attempts for the same user should trigger HTTP 429.
+    """
+    email = _unique_email("ratelimit")
+    password = "12345678"
+
+    register = client.post(
+        "/api/v1/register",
+        json={"email": email, "password": password, "full_name": "Rate Limit User"},
+    )
+    assert register.status_code == 200, register.text
+
+    last_status = None
+    for _ in range(7):  # default user limit is 5/minute
+        response = client.post(
+            "/api/v1/login",
+            data={"username": email, "password": "wrong-password"},
+        )
+        last_status = response.status_code
+
+    assert last_status == 429

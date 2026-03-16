@@ -4,14 +4,8 @@ from __future__ import annotations
 
 import time
 
-from fastapi.testclient import TestClient
 
-from app.main import app
-
-client = TestClient(app)
-
-
-def test_healthz_returns_ok() -> None:
+def test_healthz_returns_ok(client) -> None:
     """Assert that healthz returns HTTP 200 and status=ok."""
     r = client.get("/api/v1/healthz")
     assert r.status_code == 200
@@ -20,7 +14,7 @@ def test_healthz_returns_ok() -> None:
     assert body["status"] == "ok"
 
 
-def test_healthz_is_lightweight() -> None:
+def test_healthz_is_lightweight(client) -> None:
     """Healthz should be fast and without dependencies."""
 
     start = time.time()
