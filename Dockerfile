@@ -9,10 +9,10 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Copia requirements
-COPY requirements.txt .
+COPY requirements/ requirements/
 
 # Instala dependencias
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements/base.txt
 
 # Copia el resto del código fuente
 COPY . .
@@ -22,4 +22,3 @@ EXPOSE 8000
 
 # Comando para levantar el server
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-
