@@ -11,6 +11,8 @@ Notes:
 
 from __future__ import annotations
 
+from typing import Literal
+
 from dotenv import load_dotenv
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -29,7 +31,13 @@ class Settings(BaseSettings):
         APP_ENV: Environment name (development/production/etc.).
         DEBUG: Enables debug behaviors and more verbose logging.
         ALLOWED_ORIGINS: CSV list of CORS allowed origins.
+        CORS_ALLOW_METHODS: CSV list of allowed CORS methods.
+        CORS_ALLOW_HEADERS: CSV list of allowed CORS headers.
+        CORS_ALLOW_CREDENTIALS: Whether CORS credentials are allowed.
+        SECURITY_HEADERS_ENABLED: Enables secure HTTP response headers.
+        HSTS_MAX_AGE_SECONDS: Strict-Transport-Security max-age.
         LOG_LEVEL: Logging verbosity ("debug", "info", "warning", etc.).
+        LOG_FORMAT: Output format for logs ("text", "json", or "auto").
         DATABASE_URL: SQLAlchemy database URL (SQLite by default).
         DB_ECHO: If True, logs SQL statements (useful for debugging).
         JWT_SECRET_KEY: Secret key used to sign JWTs.
@@ -46,7 +54,13 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
     ALLOWED_ORIGINS: str = "http://localhost"
+    CORS_ALLOW_METHODS: str = "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    CORS_ALLOW_HEADERS: str = "Authorization,Content-Type,Accept,Origin"
+    CORS_ALLOW_CREDENTIALS: bool = True
+    SECURITY_HEADERS_ENABLED: bool = True
+    HSTS_MAX_AGE_SECONDS: int = 31536000
     LOG_LEVEL: str = "info"
+    LOG_FORMAT: Literal["auto", "text", "json"] = "auto"
 
     # Database
     DATABASE_URL: str = "sqlite:///./app.db"
@@ -79,7 +93,19 @@ class Settings(BaseSettings):
         if is_production and (self.DEBUG or uses_example_secret):
             raise ValueError("Production requires DEBUG=false and a non-default JWT secret")
 
+        if is_production:
+            if "*" in self.ALLOWED_ORIGINS:
+                raise ValueError("Production CORS cannot use wildcard origins")
+            if "*" in self.CORS_ALLOW_METHODS or "*" in self.CORS_ALLOW_HEADERS:
+                raise ValueError("Production CORS methods/headers cannot use wildcards")
+
         return self
+
+    def resolved_log_format(self) -> str:
+        """Return the effective log format for the current environment."""
+        if self.LOG_FORMAT != "auto":
+            return self.LOG_FORMAT
+        return "json" if self.APP_ENV.lower() == "production" else "text"
 
 
 # Global settings instance for import across the project.
