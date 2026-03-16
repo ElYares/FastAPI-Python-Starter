@@ -1,4 +1,4 @@
-.PHONY: install install-dev run test test-docker lint format check migrate up down logs
+.PHONY: install install-dev run test test-docker lint format security check migrate up down logs
 
 install:
 	pip install -r requirements/base.txt
@@ -23,7 +23,11 @@ format:
 	ruff check . --fix
 	black .
 
-check: lint test
+security:
+	bandit -q -c bandit.yaml -r app
+	pip-audit -r requirements/base.txt --no-deps --disable-pip
+
+check: lint test security
 
 migrate:
 	docker compose exec fastapi alembic upgrade head

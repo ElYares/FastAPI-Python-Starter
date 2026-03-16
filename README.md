@@ -91,9 +91,13 @@ elyares-fastapi-python-starter/
 
 ## Requisitos
 
-- Python 3.11+
+- Python 3.11
 - Docker (opcional pero recomendado)
 - Make (opcional, para atajos de comandos)
+
+> Nota de compatibilidad local: el flujo oficial del proyecto está validado en Docker con Python 3.11.
+> En este repositorio se observó un deadlock del stack `asyncio`/`anyio` al ejecutar tests de integración con `TestClient`
+> sobre un Python 3.13 de Anaconda del host. Si necesitas validar localmente, usa Python 3.11 o Docker.
 
 
 ---
@@ -195,12 +199,23 @@ docker compose exec fastapi pytest -q tests/test_auth.py
 make test
 ```
 
+Si los tests de integración se quedan colgados en tu host, usa:
+
+```bash
+docker compose exec fastapi pytest -q
+```
+
 ## Calidad de código
 
 Lint/format:
 ```bash
 make lint
 make format
+```
+
+Seguridad:
+```bash
+make security
 ```
 
 Pre-commit:
