@@ -21,10 +21,13 @@ router = APIRouter(tags=["Health"])
 )
 def health_check() -> dict[str, str]:
     """
-    Check service status.
+    Return service health and basic runtime metadata.
 
     Returns:
-        dict[str, str]: Service status and basic environment metadata.
+        dict[str, str]: Liveness payload with app name and environment.
+
+    Notes:
+        Keep this endpoint lightweight to be used by probes/health checks.
     """
     return {
         "status": "ok",

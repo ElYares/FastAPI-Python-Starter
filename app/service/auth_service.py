@@ -11,7 +11,7 @@ that orchestrate repository calls.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -44,7 +44,8 @@ class AuthService:
         if not password:
             raise ValueError("Password is required")
 
-        # bcrypt only considers the first 72 bytes; longer inputs must be rejected to avoid ambiguity.
+        # bcrypt only considers the first 72 bytes.
+        # Reject longer inputs to avoid ambiguity.
         if len(password.encode("utf-8")) > 72:
             raise ValueError("Password is too long")
         return _pwd_context.hash(password)
@@ -74,7 +75,7 @@ class AuthService:
         """
         to_encode = data.copy()
 
-        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_EXPIRE_MINUTES)
+        expire = datetime.now(UTC) + timedelta(minutes=settings.JWT_EXPIRE_MINUTES)
         to_encode.update({"exp": expire})
 
         return jwt.encode(

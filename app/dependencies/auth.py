@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -56,11 +56,11 @@ def get_current_user(
 
         try:
             user_id = int(sub)
-        except (TypeError, ValueError):
-            raise credentials_exception
+        except (TypeError, ValueError) as err:
+            raise credentials_exception from err
 
-    except JWTError:
-        raise credentials_exception
+    except JWTError as err:
+        raise credentials_exception from err
 
     user = db.get(DBUser, user_id)
     if user is None or not user.is_active:

@@ -13,9 +13,11 @@ def test_hash_and_verify_password():
     assert auth.verify_password("123456", hashed) is True
     assert auth.verify_password("wrong", hashed) is False
 
+
 def test_hash_password_rejects_over_72_bytes():
     auth = AuthService()
     long_pwd = "a" * 100
     import pytest
+
     with pytest.raises(ValueError):
         auth.hash_password(long_pwd)

@@ -23,12 +23,16 @@ router = APIRouter(tags=["Secure"])
 )
 def protected_route(user: DBUser = Depends(get_current_user)) -> UserResponse:
     """
-    Return the authenticated user.
+    Return the currently authenticated user.
 
     Args:
         user: Authenticated user loaded from the database.
 
     Returns:
         UserResponse: Public user data.
+
+    Raises:
+        HTTPException: If the bearer token is missing, invalid, expired, or
+            points to an inactive user.
     """
     return user

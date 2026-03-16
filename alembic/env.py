@@ -1,32 +1,36 @@
-from logging.config import fileConfig
+"""Alembic environment configuration for online/offline migrations."""
+
+from __future__ import annotations
+
 import os
 import sys
+from logging.config import fileConfig
+
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
 
-# Imports de "app"
+# Add project root to sys.path so Alembic can import application modules.
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.config import settings
 from app.dependencies.db import Base
-from app.models import db_user
 
-# Alembic Config
 config = context.config
 
-# Logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# metadata para autogenerate
 target_metadata = Base.metadata
 
-def get_url():
+
+def get_url() -> str:
+    """Return the configured database URL used by Alembic."""
     return settings.DATABASE_URL
 
+
 def run_migrations_offline() -> None:
+    """Run migrations in offline mode (SQL script generation)."""
     url = get_url()
     context.configure(
         url=url,
@@ -39,10 +43,12 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+
 def run_migrations_online() -> None:
+    """Run migrations in online mode with a live database connection."""
     configuration = config.get_section(config.config_ini_section) or {}
     configuration["sqlalchemy.url"] = get_url()
-    
+
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
@@ -59,6 +65,7 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

@@ -1,8 +1,8 @@
 """
 Authentication routes (v1).
 
-This module provides authentication endpoints. Currently, `/login` is a demo
-endpoint that issues a JWT token without validating credentials.
+This module provides user registration and login endpoints backed by the
+database and password hashing/verification.
 """
 
 from __future__ import annotations
@@ -34,11 +34,22 @@ def login(
     db: Session = Depends(get_db),
 ) -> TokenResponse:
     """
-    Authenticate user credentials and return a JWT token.
+    Authenticate user credentials and return an access token.
 
-    Notes:
-        - Swagger UI uses OAuth2 Password flow: sends `username` and `password`.
-        - We interpret `username` as the user's email.
+    This endpoint expects `application/x-www-form-urlencoded` payload via
+    OAuth2 Password flow:
+    - `username`: user email
+    - `password`: plaintext password
+
+    Args:
+        form_data: OAuth2 form payload from the request body.
+        db: Request-scoped SQLAlchemy session.
+
+    Returns:
+        TokenResponse: JWT access token and token type (`bearer`).
+
+    Raises:
+        BadRequestException: If credentials are invalid.
     """
     user = UserService(db).authenticate_user(
         email=form_data.username,
@@ -57,7 +68,7 @@ def login(
 )
 def register(payload: UserCreate, db: Session = Depends(get_db)) -> UserResponse:
     """
-    Register a new user in the database.
+    Register a new user and persist it in the database.
 
     Args:
         payload: User registration payload.
@@ -65,6 +76,9 @@ def register(payload: UserCreate, db: Session = Depends(get_db)) -> UserResponse
 
     Returns:
         UserResponse: Created user (public fields only).
+
+    Raises:
+        BadRequestException: If the email is already registered.
     """
     return UserService(db).register_user(
         email=payload.email,

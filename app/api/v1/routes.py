@@ -25,12 +25,15 @@ router = APIRouter(tags=["Users"])
 )
 def get_users(db: Session = Depends(get_db)) -> list[UserResponse]:
     """
-    List users from the database.
+    List all users stored in the database.
 
     Args:
         db: Request-scoped SQLAlchemy session.
 
     Returns:
         list[UserResponse]: Users serialized using the response schema.
+
+    Notes:
+        This endpoint currently does not require authentication.
     """
     return UserService(db).list_users()

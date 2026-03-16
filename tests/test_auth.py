@@ -15,7 +15,7 @@ Notes:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from jose import jwt
 
@@ -122,7 +122,7 @@ def test_secure_with_expired_token(client):
     We generate a token with an expiration time in the past and verify
     the endpoint responds with 401.
     """
-    expired = datetime.now(timezone.utc) - timedelta(minutes=2)
+    expired = datetime.now(UTC) - timedelta(minutes=2)
 
     token = jwt.encode(
         {"sub": "does-not-matter", "exp": expired},

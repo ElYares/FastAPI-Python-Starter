@@ -11,8 +11,9 @@ Notes:
 
 from __future__ import annotations
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
+from pydantic import model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load .env into process environment for local/dev execution.
 # In Docker, variables can be provided via env_file or environment.
@@ -56,6 +57,19 @@ class Settings(BaseSettings):
         env_file=".env",
         extra="allow",
     )
+
+    @model_validator(mode="after")
+    def validate_security_settings(self) -> Settings:
+        """Apply minimum security rules for runtime configuration."""
+        if len(self.JWT_SECRET_KEY.encode("utf-8")) < 32:
+            raise ValueError("JWT_SECRET_KEY must be at least 32 bytes long")
+
+        is_production = self.APP_ENV.lower() == "production"
+        uses_example_secret = "CHANGE_ME" in self.JWT_SECRET_KEY
+        if is_production and (self.DEBUG or uses_example_secret):
+            raise ValueError("Production requires DEBUG=false and a non-default JWT secret")
+
+        return self
 
 
 # Global settings instance for import across the project.

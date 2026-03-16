@@ -7,9 +7,11 @@ They are not included in production environments.
 
 from __future__ import annotations
 
+from typing import Never
+
 from fastapi import APIRouter
 
-from app.exceptions import NotFoundException, BadRequestException
+from app.exceptions import BadRequestException, NotFoundException
 
 router = APIRouter(tags=["Debug"])
 
@@ -19,7 +21,13 @@ router = APIRouter(tags=["Debug"])
     summary="Debug: Not Found",
     description="Endpoint de prueba que lanza NotFoundException (solo dev).",
 )
-def debug_not_found():
+def debug_not_found() -> Never:
+    """
+    Raise a controlled 404 error for testing exception handlers.
+
+    Raises:
+        NotFoundException: Always raised to validate 404 response formatting.
+    """
     raise NotFoundException("El recurso no existe")
 
 
@@ -28,7 +36,13 @@ def debug_not_found():
     summary="Debug: Bad Request",
     description="Endpoint de prueba que lanza BadRequestException (solo dev).",
 )
-def debug_bad_request():
+def debug_bad_request() -> Never:
+    """
+    Raise a controlled 400 error for testing exception handlers.
+
+    Raises:
+        BadRequestException: Always raised to validate 400 response formatting.
+    """
     raise BadRequestException("Peticion Incorrecta")
 
 
@@ -37,5 +51,11 @@ def debug_bad_request():
     summary="Debug: Unhandled Exception",
     description="Endpoint de prueba que lanza Exception genérica (solo dev).",
 )
-def debug_exception():
+def debug_exception() -> Never:
+    """
+    Raise an unhandled exception to validate 500-error behavior in tests.
+
+    Raises:
+        Exception: Always raised to trigger the global 500 handler.
+    """
     raise Exception("boom")

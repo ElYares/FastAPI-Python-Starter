@@ -14,9 +14,10 @@ from sqlalchemy.orm import Session
 
 from app.exceptions import BadRequestException
 from app.logger import logger
+from app.models.db_user import DBUser
 from app.repositories.user_repository import UserRepository
 from app.service.auth_service import AuthService
-from app.exceptions import BadRequestException
+
 
 class UserService:
     """
@@ -31,7 +32,7 @@ class UserService:
         self.auth = AuthService()
         logger.info("UserService initialized (db-backed)")
 
-    def list_users(self):
+    def list_users(self) -> list[DBUser]:
         """
         Return all users from the repository.
 
@@ -41,7 +42,7 @@ class UserService:
         logger.info("UserService.list_users() called")
         return self.repo.list_users()
 
-    def register_user(self, email: str, password: str, full_name: str | None = None):
+    def register_user(self, email: str, password: str, full_name: str | None = None) -> DBUser:
         """
         Register a new user in the database.
 
@@ -75,9 +76,9 @@ class UserService:
         logger.info("User registered successfully: user_id=%s email=%s", user.id, user.email)
         return user
 
-    def authenticate_user(self, email:str, password:str):
+    def authenticate_user(self, email: str, password: str) -> DBUser:
         """
-        Authenticate a user by and password.
+        Authenticate a user by email and password.
 
         Args:
             email: User email.
@@ -87,16 +88,16 @@ class UserService:
             BadRequestException: If the email is not found or the password is invalid.
 
         Returns:
-            DBUser | None: Authenticated user if found; otherwise None.
+            DBUser: Authenticated user.
         """
 
         user = self.repo.get_by_email(email)
         if user is None:
             raise BadRequestException("Credenciales inválidas")
-        
+
         if not self.auth.verify_password(password, user.hashed_password):
             raise BadRequestException("Credenciales inválidas")
-        
+
         # Track last login
         self.repo.update_last_login(user)
         return user

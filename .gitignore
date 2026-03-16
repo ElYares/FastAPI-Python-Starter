@@ -1,23 +1,19 @@
-# ───────────────────────────────
-# Python
-# ───────────────────────────────
 __pycache__/
 *.py[cod]
+*.pyo
 *.so
 *.egg
 *.egg-info/
-dist/
 build/
-*.pyo
+dist/
 
-# Entornos virtuales
 venv/
-.env/
+.venv/
 
-# Logs
 *.log
+*.pid
+*.pid.lock
 
-# Configs temporales
 .DS_Store
 *.swp
 *.bak
@@ -26,30 +22,17 @@ venv/
 .vscode/
 *.sublime*
 
-# Archivos de cobertura/test
 htmlcov/
 .coverage
 .cache
 pytest_cache/
 .tox/
+.mypy_cache/
+.ruff_cache/
 
-# Archivos de entorno y depuración
 .env
 .env.*
 !.env.example
 
-# Docker (si usas en el futuro)
-*.pid
-*.pid.lock
-
-# Archivos de cobertura/test
-htmlcov/
-.coverage
-.cache
-pytest_cache/
-.tox/
-
-
-# SQLite
 *.db
 app.db

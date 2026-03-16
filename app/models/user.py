@@ -1,12 +1,18 @@
 """
-Modelo de dominio que representa a un usuario
-Este modelo esta desacoplado de Pydantic y de la capa de transporte 
+Domain user model.
+
+This model is intentionally decoupled from persistence (SQLAlchemy) and
+transport (Pydantic schemas).
 """
 
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(slots=True)
 class User:
-    """
-    Clase que representa un usuario dentro de la logica de negocio
-    """
-    def __init__(self, id: int, name: str):
-        self.id = id
-        self.name =  name
+    """Represent a user in the business domain layer."""
+
+    id: int
+    name: str

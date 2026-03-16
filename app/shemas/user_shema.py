@@ -41,6 +41,12 @@ class UserCreate(BaseModel):
     """
     Schema used to register a new user.
     """
+
     email: EmailStr = Field(..., description="Correo electrónico del usuario")
-    password: str = Field(..., min_length=6, max_length=72, description="Contraseña (máx 72 bytes para bcrypt)")
+    password: str = Field(
+        ...,
+        min_length=6,
+        max_length=72,
+        description="Contraseña (máx 72 bytes para bcrypt)",
+    )
     full_name: str | None = Field(default=None, description="Nombre completo del usuario")

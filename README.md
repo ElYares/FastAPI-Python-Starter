@@ -93,6 +93,7 @@ elyares-fastapi-python-starter/
 
 - Python 3.11+
 - Docker (opcional pero recomendado)
+- Make (opcional, para atajos de comandos)
 
 
 ---
@@ -130,8 +131,14 @@ docker network ls | grep fast-starter-api
 ```bash
 python -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements/base.txt -r requirements/dev.txt -r requirements/test.txt
 uvicorn app.main:app --reload
+```
+
+O con Make:
+```bash
+make install-dev
+make run
 ```
 
 ---
@@ -180,6 +187,25 @@ docker compose exec fastapi pytest -vv
 ### Por archivo
 ```bash
 docker compose exec fastapi pytest -q tests/test_auth.py
+```
+
+### Local
+```bash
+make test
+```
+
+## Calidad de código
+
+Lint/format:
+```bash
+make lint
+make format
+```
+
+Pre-commit:
+```bash
+pre-commit install
+pre-commit run --all-files
 ```
 
 ---

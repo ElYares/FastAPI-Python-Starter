@@ -3,11 +3,13 @@ Healthz routes (v1).
 Alternative health endpoint for monitoring systems that expect /healthz.
 Lightweight endpoint without external dependencies.
 """
+
 from __future__ import annotations
+
 from fastapi import APIRouter
-from app.config import settings
 
 router = APIRouter(tags=["Healthz"])
+
 
 @router.get(
     "/healthz",
@@ -16,15 +18,9 @@ router = APIRouter(tags=["Healthz"])
 )
 def healthz_check() -> dict[str, str]:
     """
-    Check service status for k8s health check.
+    Return minimal liveness payload for container orchestration probes.
 
     Returns:
-        dict[str, str]: Service status and version if available.
+        dict[str, str]: Minimal liveness payload.
     """
-    response = {"status": "ok"}
-    
-    # NO CONFIRMADO: No hay variable VERSION en config.py verificado
-    # Para agregar versión, necesitaría confirmar si existe en settings
-    # o proponer agregarla. Por ahora sin versión para evitar invenciones.
-    
-    return response
+    return {"status": "ok"}

@@ -6,8 +6,6 @@ Standardizes error responses across the API so clients receive a consistent shap
 
 from __future__ import annotations
 
-from typing import Any
-
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse

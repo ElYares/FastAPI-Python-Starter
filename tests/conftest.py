@@ -10,7 +10,7 @@ Key goals:
 from __future__ import annotations
 
 import os
-from typing import Generator
+from collections.abc import Generator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -67,8 +67,8 @@ def client(db_session) -> Generator[TestClient, None, None]:
     are set before app.main/config settings are evaluated.
     """
     # Lazy imports so settings/app are evaluated AFTER env vars are set.
-    from app.main import app  # noqa: WPS433
     from app.dependencies.db import get_db  # noqa: WPS433
+    from app.main import app  # noqa: WPS433
 
     def _override_get_db():
         try:
@@ -78,7 +78,8 @@ def client(db_session) -> Generator[TestClient, None, None]:
 
     app.dependency_overrides[get_db] = _override_get_db
 
-    with TestClient(app, raise_server_exceptions=False) as c:
-        yield c
+    c = TestClient(app, raise_server_exceptions=False)
+    yield c
+    c.close()
 
     app.dependency_overrides.clear()
