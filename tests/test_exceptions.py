@@ -21,6 +21,8 @@ def test_not_found_exception(client):
 
     payload = response.json()
     assert payload["error"] == "Not Found"
+    assert "request_id" in payload
+    assert payload["request_id"] == response.headers.get("x-request-id")
 
     # Message can vary depending on which handler produced the response.
     # We only assert that the message exists and is non-empty.
@@ -49,6 +51,7 @@ def test_bad_request_exception(client):
     payload = response.json()
     assert payload["error"] == "Bad Request"
     assert "message" in payload
+    assert payload["request_id"] == response.headers.get("x-request-id")
 
 
 def test_unhandled_exception(client):
@@ -71,5 +74,16 @@ def test_unhandled_exception(client):
     payload = response.json()
     assert payload["error"] == "Internal Server Error"
     assert "message" in payload
+    assert payload["request_id"] == response.headers.get("x-request-id")
     assert isinstance(payload["message"], str)
     assert payload["message"].strip() != ""
+
+
+def test_error_response_preserves_request_id_header(client):
+    """Error responses should keep a caller-supplied request ID for correlation."""
+    request_id = "req-error-123"
+    response = client.get("/api/v1/not-found", headers={"X-Request-ID": request_id})
+
+    assert response.status_code == 404
+    assert response.headers.get("x-request-id") == request_id
+    assert response.json()["request_id"] == request_id

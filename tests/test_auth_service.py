@@ -21,3 +21,8 @@ def test_hash_password_rejects_over_72_bytes():
 
     with pytest.raises(ValueError):
         auth.hash_password(long_pwd)
+
+
+def test_verify_password_returns_false_for_invalid_hash():
+    auth = AuthService()
+    assert auth.verify_password("123456", "not-a-valid-bcrypt-hash") is False
