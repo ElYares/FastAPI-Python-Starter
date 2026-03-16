@@ -12,6 +12,8 @@ that orchestrate repository calls.
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from hashlib import sha256
+from uuid import uuid4
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -74,10 +76,62 @@ class AuthService:
             str: Encoded JWT token.
         """
         to_encode = data.copy()
+        to_encode.update({"type": "access"})
+        return self._encode_token(to_encode, settings.JWT_EXPIRE_MINUTES)
 
-        expire = datetime.now(UTC) + timedelta(minutes=settings.JWT_EXPIRE_MINUTES)
-        to_encode.update({"exp": expire})
+    def create_refresh_token(self, user_id: int, token_jti: str | None = None) -> str:
+        """
+        Create a refresh token with token type and JTI.
 
+        Args:
+            user_id: User ID owning the token.
+            token_jti: Optional unique token identifier. Generated if omitted.
+
+        Returns:
+            str: Encoded refresh JWT token.
+        """
+        jti = token_jti or uuid4().hex
+        payload = {
+            "sub": str(user_id),
+            "jti": jti,
+            "type": "refresh",
+        }
+        return self._encode_token(payload, settings.JWT_REFRESH_EXPIRE_MINUTES)
+
+    def decode_token(self, token: str) -> dict:
+        """
+        Decode and validate a JWT token.
+
+        Args:
+            token: Encoded JWT string.
+
+        Raises:
+            JWTError: If token is invalid or expired.
+
+        Returns:
+            dict: Decoded payload.
+        """
+        return jwt.decode(
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM],
+        )
+
+    @staticmethod
+    def hash_token(token: str) -> str:
+        """Return a stable SHA-256 hex digest for secure token storage."""
+        return sha256(token.encode("utf-8")).hexdigest()
+
+    def _encode_token(self, payload: dict, expires_minutes: int) -> str:
+        """Encode a JWT payload with UTC expiration and issued-at claims."""
+        now = datetime.now(UTC)
+        to_encode = payload.copy()
+        to_encode.update(
+            {
+                "iat": now,
+                "exp": now + timedelta(minutes=expires_minutes),
+            }
+        )
         return jwt.encode(
             to_encode,
             settings.JWT_SECRET_KEY,

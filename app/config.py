@@ -35,6 +35,10 @@ class Settings(BaseSettings):
         JWT_SECRET_KEY: Secret key used to sign JWTs.
         JWT_ALGORITHM: JWT algorithm (default HS256).
         JWT_EXPIRE_MINUTES: Access token expiration in minutes.
+        JWT_REFRESH_EXPIRE_MINUTES: Refresh token expiration in minutes.
+        LOGIN_RATE_LIMIT_ATTEMPTS_PER_IP: Max login attempts per IP in window.
+        LOGIN_RATE_LIMIT_ATTEMPTS_PER_USER: Max login attempts per user in window.
+        LOGIN_RATE_LIMIT_WINDOW_SECONDS: Sliding window size in seconds.
     """
 
     # App
@@ -52,6 +56,12 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 30
+    JWT_REFRESH_EXPIRE_MINUTES: int = 60 * 24 * 7
+
+    # Rate limit (login endpoint)
+    LOGIN_RATE_LIMIT_ATTEMPTS_PER_IP: int = 20
+    LOGIN_RATE_LIMIT_ATTEMPTS_PER_USER: int = 5
+    LOGIN_RATE_LIMIT_WINDOW_SECONDS: int = 60
 
     model_config = SettingsConfigDict(
         env_file=".env",

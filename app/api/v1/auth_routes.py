@@ -7,17 +7,22 @@ database and password hashing/verification.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.dependencies.db import get_db
-from app.service.auth_service import AuthService
+from app.dependencies.rate_limit import enforce_login_rate_limit
+from app.service.token_service import TokenService
 from app.service.user_service import UserService
-from app.shemas.user_shema import TokenResponse, UserCreate, UserResponse
+from app.shemas.user_shema import (
+    RefreshTokenRequest,
+    TokenResponse,
+    UserCreate,
+    UserResponse,
+)
 
 router = APIRouter(tags=["Auth"])
-auth_service = AuthService()
 
 
 @router.post(
@@ -30,6 +35,7 @@ auth_service = AuthService()
     ),
 )
 def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ) -> TokenResponse:
@@ -42,6 +48,7 @@ def login(
     - `password`: plaintext password
 
     Args:
+        request: Incoming HTTP request used for rate limiting metadata.
         form_data: OAuth2 form payload from the request body.
         db: Request-scoped SQLAlchemy session.
 
@@ -50,14 +57,35 @@ def login(
 
     Raises:
         BadRequestException: If credentials are invalid.
+        HTTPException: If login rate limit is exceeded (429).
     """
+    enforce_login_rate_limit(request=request, username=form_data.username)
+
     user = UserService(db).authenticate_user(
         email=form_data.username,
         password=form_data.password,
     )
+    return TokenService(db).issue_token_pair(user.id)
 
-    token = auth_service.create_access_token({"sub": str(user.id)})
-    return TokenResponse(access_token=token, token_type="bearer")
+
+@router.post(
+    "/refresh",
+    response_model=TokenResponse,
+    summary="Refrescar tokens",
+    description="Rota un refresh token válido y retorna un nuevo access/refresh token.",
+)
+def refresh_tokens(payload: RefreshTokenRequest, db: Session = Depends(get_db)) -> TokenResponse:
+    """
+    Rotate a refresh token and issue a new token pair.
+
+    Args:
+        payload: Refresh token payload.
+        db: Request-scoped SQLAlchemy session.
+
+    Returns:
+        TokenResponse: New access token and new refresh token.
+    """
+    return TokenService(db).rotate_refresh_token(payload.refresh_token)
 
 
 @router.post(

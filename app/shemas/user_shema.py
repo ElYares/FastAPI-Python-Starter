@@ -34,7 +34,14 @@ class TokenResponse(BaseModel):
     """
 
     access_token: str = Field(..., description="JWT de acceso")
+    refresh_token: str | None = Field(default=None, description="JWT de refresco con rotación")
     token_type: str = Field("bearer", description="Tipo de token (Bearer)")
+
+
+class RefreshTokenRequest(BaseModel):
+    """Schema used to exchange a valid refresh token for a new token pair."""
+
+    refresh_token: str = Field(..., description="Refresh token JWT vigente")
 
 
 class UserCreate(BaseModel):
